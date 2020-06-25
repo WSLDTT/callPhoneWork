@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tt.work.starter.impoetfile.dao.IExeclModelDao">
+
+    <resultMap id="BaseResultMap" type="com.tt.work.starter.impoetfile.model.ExeclModel">
+        <result column="id" jdbcType="INTEGER" property="id" />
+        <result column="tt_date" jdbcType="VARCHAR" property="date" />
+        <result column="ali_ww_id" jdbcType="VARCHAR" property="aliWWID" />
+        <result column="explain_state" jdbcType="VARCHAR" property="explainState" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="phone2" jdbcType="VARCHAR" property="phone2" />
+        <result column="call_time" jdbcType="VARCHAR" property="callTime" />
+        <result column="succee_state" jdbcType="VARCHAR" property="succeeState" />
+        <result column="tt_name" jdbcType="VARCHAR" property="name" />
+        <result column="insert_date" jdbcType="VARCHAR" property="insertDate" />
+    </resultMap>
+
+    <insert id="insert">
+        insert into tt_execl_model (tt_date,ali_ww_id,explain_state,phone,phone2,call_time,succee_state,tt_name,insert_date)
+        values (#{date,jdbcType=VARCHAR}, #{aliWWID,jdbcType=VARCHAR},#{explainState,jdbcType=VARCHAR},#{phone,jdbcType=VARCHAR},#{phone2,jdbcType=VARCHAR},#{callTime,jdbcType=VARCHAR},#{succeeState,jdbcType=VARCHAR},#{name,jdbcType=VARCHAR},#{insertDate,jdbcType=VARCHAR})
+    </insert>
+
+    <select id="queryTodayAll" parameterType="java.lang.String" resultMap="BaseResultMap">
+        Select *
+        from tt_execl_model
+        where insert_date = #{insertDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryTodaySuccess" parameterType="java.lang.String" resultMap="BaseResultMap">
+        Select *
+        from tt_execl_model
+        where insert_date = #{insertDate,jdbcType=VARCHAR}
+        AND succee_state ='1';
+    </select>
+
+    <update id="updateExeclModel" parameterType="com.tt.work.starter.impoetfile.model.ExeclModel">
+        update tt_execl_model
+        set explain_state = #{explainState,jdbcType=VARCHAR}
+        <if test="phone!=null and phone!=''">
+            ,phone = #{phone,jdbcType=VARCHAR}
+        </if>
+        <if test="phone2!=null and phone2!=''">
+            ,phone2 = #{phone2,jdbcType=VARCHAR}
+        </if>
+        where id = #{id}
+    </update>
+
+    <update id="updatesuccess">
+          update tt_execl_model
+          set succee_state ='1'
+          where  id = #{id} AND  succee_state <![CDATA[<>]]> '1'
+    </update>
+
+    <select id="queryById" resultMap="BaseResultMap">
+         Select *
+        from tt_execl_model
+        where id = #{id}
+        AND explain_state ='同意';
+    </select>
+
+</mapper>
