@@ -2,6 +2,7 @@ package com.tt.work.starter.impoetfile.collection;
 
 
 import com.tt.work.starter.impoetfile.model.ExeclModel;
+import com.tt.work.starter.impoetfile.model.PageQuery;
 import com.tt.work.starter.impoetfile.model.ResultModel;
 import com.tt.work.starter.impoetfile.service.IExeclModelService;
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +30,9 @@ public class QueryExeclModelCollection {
 
     @RequestMapping("/queryTodayAll")
     @ResponseBody
-    public List<ExeclModel> queryTodayAll(){
-        List<ExeclModel> execlModels = execlModelService.queryTodayAll();
-        return  execlModels;
+    public PageQuery queryTodayAll(){
+        PageQuery pageQuery = execlModelService.queryTodayAll();
+        return  pageQuery;
     }
 
     @RequestMapping("/updateExeclModel")
@@ -83,7 +84,7 @@ public class QueryExeclModelCollection {
         ResultModel resultModel = new ResultModel();
         if (null == execlModel){
             resultModel.setResult(false);
-            resultModel.setErrMsg("只可以将同意拍单的可以的设置为拍单成功");
+            resultModel.setErrMsg("只可以将同意拍单的设置为拍单成功");
             return resultModel;
         }
         Integer count = execlModelService.updatesuccess(param.get("id").toString());

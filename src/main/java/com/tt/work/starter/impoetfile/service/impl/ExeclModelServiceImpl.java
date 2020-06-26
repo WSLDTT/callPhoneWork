@@ -2,6 +2,7 @@ package com.tt.work.starter.impoetfile.service.impl;
 
 import com.tt.work.starter.impoetfile.dao.IExeclModelDao;
 import com.tt.work.starter.impoetfile.model.ExeclModel;
+import com.tt.work.starter.impoetfile.model.PageQuery;
 import com.tt.work.starter.impoetfile.service.IExeclModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ExeclModelServiceImpl implements IExeclModelService {
 
 
     @Override
-    public List<ExeclModel> queryTodayAll() {
+    public PageQuery queryTodayAll() {
         Calendar calendar = Calendar.getInstance();
         // 获取当前年
         String year = calendar.get(Calendar.YEAR)+"";
@@ -33,8 +34,11 @@ public class ExeclModelServiceImpl implements IExeclModelService {
         String day = calendar.get(Calendar.DATE)-1+"";
         //获取当天所有客户拍单数据
         List<ExeclModel> todayAll = execlModelDao.queryTodayAll(year + month + day);
-
-        return todayAll;
+        List<Map<String, String>> mapList = execlModelDao.queryCallPhoneNum();
+        PageQuery pageQuery = new PageQuery();
+        pageQuery.setMapList(mapList);
+        pageQuery.setTodayAll(todayAll);
+        return pageQuery;
     }
 
     @Override

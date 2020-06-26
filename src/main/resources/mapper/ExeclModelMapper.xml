@@ -58,4 +58,12 @@
         AND explain_state ='同意';
     </select>
 
+    <select id="queryCallPhoneNum" resultType="java.util.Map">
+        select phone,CONCAT(count(*),'') num
+        FROM tt_execl_model
+        WHERE phone!='null'
+        and phone!=''
+        GROUP BY phone
+    </select>
+
 </mapper>

@@ -31,76 +31,42 @@
     <li role="presentation" class="active"><a href="/comeHome/seeTable">表格查看</a></li>
     <li role="presentation"><a href="#">导出表格</a></li>
 </ul>
-<table id="planMakeTable" class="table table-striped table-bordered" style="width:100%">
-    <thead id="theadId" class="simier">
-    <tr>
-        <th colspan="15" class="tableHead" style="font-size:28px;color: black" id="tableTitle"></th>
-    </tr>
-    <tr>
-        <th>0</th>
-        <th>日期</th>
-        <th>已拨打ID</th>
-        <th>拨打备注</th>
-        <th>拨打号码</th>
-        <th>拨打号码</th>
-        <th>通话分钟</th>
-        <th>更新数据按钮</th>
-        <th>拍单成功按钮</th>
-        <th>成功ld</th>
-        <th>姓名</th>
-    </tr>
-<%--    <tr>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th>未接</th>--%>
-<%--        <th>63</th>--%>
-<%--    </tr>--%>
-<%--    <tr>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th>同意</th>--%>
-<%--        <th>67</th>--%>
-<%--    </tr>--%>
-<%--    <tr>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th>不同意</th>--%>
-<%--        <th>53</th>--%>
-<%--    </tr>--%>
-<%--    <tr>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th></th>--%>
-<%--        <th>无效</th>--%>
-<%--        <th>163</th>--%>
-<%--    </tr>--%>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<div>
+    <form action="">
+        <input type="button" value="报表导出" onclick="download()"/>
+    </form>
+</div>
+<div>
+    <table id="planMakeTable" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
+        <thead id="theadId" class="simier">
+        <tr id="0tr">
+            <th>序号</th>
+            <th>日期</th>
+            <th >已拨打ID</th>
+            <th>拨打备注</th>
+            <th>拨打号码</th>
+            <th>拨打号码</th>
+            <th>通话分钟</th>
+            <th>更新数据按钮</th>
+            <th>拍单成功按钮</th>
+        </tr>
+        </thead>
+    </table>
+    <table id="planMakeTable2" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
+        <thead id="theadId2" class="simier" >
+        <tr id="0tr2">
+            <th>成功ld</th>
+            <th>姓名</th>
+        </tr>
+        </thead>
+    </table>
+    <table id="planMakeTable3" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
+        <thead id="theadId3" class="simier" >
+
+        </thead>
+    </table>
+</div>
+
 </body>
 
 <script>
@@ -110,7 +76,9 @@
            // data: {name: 'jenny'},
             type: "POST",
             dataType: "json",
-            success: function(data) {
+            success: function(res) {
+               var data=  res.todayAll;
+
                 var html="";
                 var count="";
                 var selecthtml="";
@@ -127,15 +95,17 @@
                     html+="<tr id='"+count+"tr'>" +
                                 "<th>"+count+"</th>" +
                                 "<th>"+data[i].date+"</th>" +
-                                "<th>"+data[i].aliWWID+"</th>" +
+                                "<th style='max-width: 110px'>"+data[i].aliWWID+"</th>" +
                                 "<th id='"+data[i].id+"explainState'>"+selecthtml+"</th>" +
-                                "<th id='"+data[i].id+"phone'><input type='text' value='"+ data[i].phone +"'></th>" +
-                                "<th id='"+data[i].id+"phone2'><input type='text' value='"+ data[i].phone2 +"'></th>" +
+                                "<th id='"+data[i].id+"phone'><input type='text' style='width: 100px' value='"+ data[i].phone +"'></th>" +
+                                "<th id='"+data[i].id+"phone2'><input type='text' style='width: 100px' value='"+ data[i].phone2 +"'></th>" +
                                 "<th>"+data[i].callTime+"</th>" +
-                                "<th><button onclick='updateLink("+data[i].id+")'>更新</button></th>" +
-                                "<th><button onclick='successLink("+data[i].id+")'>拍单成功</button></th>" +
-                         "</tr>";
-
+                                "<th><button onclick='updateLink("+data[i].id+")'>更新</button></th>";
+                                if (data[i].succeeState=='1'){
+                                    html+="<th><button disabled='disabled'>拍单成功</button></th></tr>";
+                                }else if (data[i].succeeState=='0'){
+                                    html+="<th><button onclick='successLink("+data[i].id+")'>设为拍单成功</button></th></tr>";
+                                }
                 }
                 $("#theadId").append(html);
                 var idSelect = '';
@@ -162,9 +132,8 @@
                     $("#"+idSelect).attr("selected","selected");
                     //把拍单成功得数据填充上去
                     if (data[i].succeeState =='1'){
-                        html2="<th>"+data[i].aliWWID+"</th><th>"+data[i].name+"</th>"
-                        $("#"+count2+"tr").append(html2);
-                        count2++;
+                        var tr2Id = i+i+'tr2';
+                        html2+="<tr id="+tr2Id+"><th>"+data[i].aliWWID+"</th><th>"+data[i].name+"</th></tr>"
                     }
 
                     if (data[i].explainState == '未接'){
@@ -183,18 +152,38 @@
                         $(this).removeClass("over")
                     });
                 }
+                $("#theadId2").append(html2);
                 //已拨打数 = 未接 +不同意+同意
                 calledCount =  missCallCount + unagreeCount + agreeCount;
-                $("#1tr").append("<th>已拨打数</th>" +"<th>"+ calledCount +"</th>");
-                $("#2tr").append("<th>未接</th>" +"<th>"+ missCallCount +"</th>");
-                $("#3tr").append("<th>同意</th>" +"<th>"+ agreeCount +"</th>");
-                $("#4tr").append("<th>不同意</th>" +"<th>"+ unagreeCount +"</th>");
-                $("#5tr").append("<th>无效</th>" +"<th>"+ invalidCount +"</th>");
+                $("#theadId3").append("<tr><th>已拨打数</th>" +"<th>"+ calledCount +"</th></tr>");
+                $("#theadId3").append("<tr><th>未接</th>" +"<th>"+ missCallCount +"</th></tr>");
+                $("#theadId3").append("<tr><th>同意</th>" +"<th>"+ agreeCount +"</th></tr>");
+                $("#theadId3").append("<tr><th>不同意</th>" +"<th>"+ unagreeCount +"</th></tr>");
+                $("#theadId3").append("<tr><th>无效</th>" +"<th>"+ invalidCount +"</th></tr>");
+
+                //电话号码追加
+                var phoneData = res.mapList;
+                var phoneTr ="";
+                // var phoneHtml='<th rowspan= '+phoneData.length+' >拨打号码</th>';
+                var phoneHtml='';
+                for (var i =0;i<phoneData.length;i++){
+                    var phoneVal = phoneData[i].phone;
+                    var numVal = phoneData[i].num;
+                    phoneTr = i+5+"tr";
+                    // if (i==0){
+                    //     $("#"+phoneTr).append(phoneHtml);
+                    // }
+                    if (i==0){
+                        phoneHtml+='<tr><th rowspan= '+phoneData.length+' >拨打号码</th><th>'+phoneVal+'</th>' +'<th>'+ numVal +'</th></tr>';
+                    }else {
+                        phoneHtml+="<tr><th>"+phoneVal+"</th>" +"<th>"+ numVal +"</th></tr>";
+                    }
+                   // $("#"+phoneTr).append("<th>"+phoneVal+"</th>" +"<th>"+ numVal +"</th>");
+                }
+                $("#theadId3").append(phoneHtml);
             }
         });
 
-
-        //给
     })
 
     //更新数据
@@ -205,6 +194,21 @@
         var explainStateVal = $("#"+explainStateEle+" select").val();
         var phoneVal = $("#"+phoneEle+" input").val();
         var phone2Val = $("#"+phone2Ele+" input").val();
+        //正则校验手机号格式
+        if ('无效' != explainStateVal && explainStateVal!=''){
+            var rex = /^1[34578]\d{9}$/;
+            if (!rex.test(phoneVal) && !rex.test(phone2Val)) {
+                if (phoneVal!='' && phone2Val!=''){
+                    alert('手机号无效：'+phoneVal +"--" + '手机号无效：'+phone2Val );
+                }else if (phoneVal!=''){
+                    alert('手机号无效：'+phoneVal);
+                }else {
+                    alert('手机号无效：'+phone2Val);
+                }
+                return ;
+            }
+        }
+
         var dateJSON = JSON.stringify({
             "id": id,
             "explainState": explainStateVal,
@@ -230,24 +234,32 @@
     }
 
     function successLink(id){
-
-        var dateJSON = JSON.stringify({
-            "id": id,
-        });
-        $.ajax({
-            url: "/queryExeclModelCollection/updatesuccess",
-            data: dateJSON,
-            type: "POST",
-            dataType: "json",
-            contentType:"application/json",
-            success: function (data) {
-                if(data.result==false){
-                    alert("拍单失败，失败原因："+data.errMsg);
-                }else {
-                    window.location.reload();
+        if(confirm("确定将此客户置为拍单成功?")){
+            //点击确定后操作
+            var dateJSON = JSON.stringify({
+                "id": id,
+            });
+            $.ajax({
+                url: "/queryExeclModelCollection/updatesuccess",
+                data: dateJSON,
+                type: "POST",
+                dataType: "json",
+                contentType:"application/json",
+                success: function (data) {
+                    if(data.result==false){
+                        alert("拍单失败，失败原因："+data.errMsg);
+                    }else {
+                        window.location.reload();
+                    }
                 }
-            }
-        });
+            });
+        }
+
+    }
+
+    function download(){
+        var url="/importCollection/downloadExcel";
+        window.open(url);
     }
 </script>
 </html>
