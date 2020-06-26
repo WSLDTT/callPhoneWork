@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wenshilong
@@ -24,6 +25,7 @@ public interface IExeclModelDao {
 
     /**
      * 查询今天所有状态得ExeclModel
+     * @param insertDate
      * @return
      */
     List<ExeclModel> queryTodayAll(@Param("insertDate") String insertDate);
@@ -56,4 +58,10 @@ public interface IExeclModelDao {
      * @return
      */
     ExeclModel queryById(String id);
+
+    /**
+     *查询每个电话今天打了多少次
+     * @return
+     */
+    List<Map<String, String>>  queryCallPhoneNum();
 }

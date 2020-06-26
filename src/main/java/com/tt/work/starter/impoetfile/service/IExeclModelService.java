@@ -1,6 +1,7 @@
 package com.tt.work.starter.impoetfile.service;
 
 import com.tt.work.starter.impoetfile.model.ExeclModel;
+import com.tt.work.starter.impoetfile.model.PageQuery;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface IExeclModelService {
      * 查询今天所有状态得ExeclModel
      * @return
      */
-    List<ExeclModel> queryTodayAll();
+    PageQuery queryTodayAll();
 
     /**
      * 根据id更新 拨打备注、拨打电话、拨打电话2字段
