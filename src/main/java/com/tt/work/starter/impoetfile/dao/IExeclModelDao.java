@@ -49,7 +49,7 @@ public interface IExeclModelDao {
      * @param id
      * @return
      */
-    Integer updatesuccess(String id);
+    Integer updatesuccess(@Param("id")String id);
 
 
     /**
@@ -57,11 +57,20 @@ public interface IExeclModelDao {
      * @param id
      * @return
      */
-    ExeclModel queryById(String id);
+    ExeclModel queryById(@Param("id")String id);
+
 
     /**
-     *查询每个电话今天打了多少次
+     * 查询今天每个电话拨出去的次数
+     * @param insertDate
      * @return
      */
-    List<Map<String, String>>  queryCallPhoneNum();
+    List<Map<String, Object>> queryTodayCallPhoneNum(@Param("insertDate")String insertDate);
+
+    /**
+     * 根据id把数据ExplainState置为无效
+     * @param id
+     * @return
+     */
+    Integer updateExplainStateToWX(@Param("id")String id);
 }

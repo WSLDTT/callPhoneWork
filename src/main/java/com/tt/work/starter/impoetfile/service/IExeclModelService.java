@@ -4,6 +4,7 @@ import com.tt.work.starter.impoetfile.model.ExeclModel;
 import com.tt.work.starter.impoetfile.model.PageQuery;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wenshilong
@@ -27,4 +28,8 @@ public interface IExeclModelService {
     Integer updatesuccess(String id);
 
     ExeclModel queryByid(String id);
+
+    List<Map<String, String>> queryTodayCallPhoneNum();
+
+    Integer updateExplainStateToWX(String id);
 }

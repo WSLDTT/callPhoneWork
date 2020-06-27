@@ -1,10 +1,12 @@
 package com.tt.work.starter.impoetfile.collection;
 
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import com.tt.work.starter.DateUtils;
 import com.tt.work.starter.impoetfile.model.ExeclModel;
 import com.tt.work.starter.impoetfile.model.ResultModel;
 import com.tt.work.starter.impoetfile.service.IExeclModelService;
 import com.tt.work.starter.impoetfile.service.IImportService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -24,11 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author wenshilong
@@ -53,18 +53,6 @@ public class ImportCollection {
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.getSheetAt(0);
 
-            System.out.println(sheet.getColumnWidth(0));
-            System.out.println(sheet.getColumnWidth(1));
-            System.out.println(sheet.getColumnWidth(2));
-            System.out.println(sheet.getColumnWidth(3));
-            System.out.println(sheet.getColumnWidth(4));
-            System.out.println(sheet.getColumnWidth(5));
-            System.out.println(sheet.getColumnWidth(6));
-            System.out.println(sheet.getColumnWidth(7));
-            System.out.println(sheet.getColumnWidth(8));
-            System.out.println(sheet.getColumnWidth(9));
-
-            if (sheet!=null) return null;
             int rowNum = sheet.getLastRowNum() +1;
             System.out.println("总行数："+rowNum);
             for (int i=1;i<rowNum;i++) {
@@ -83,6 +71,10 @@ public class ImportCollection {
                     cell.setCellType(CellType.STRING);
                     dateStr = cell.getStringCellValue();
                 }
+                if (dateStr.contains("/")){
+                    dateStr =dateStr.replaceAll("/","-");
+                }
+
                     execlModel.setDate(dateStr);
                     currRow.getCell(1).setCellType(CellType.STRING);
                     String aliWWID = currRow.getCell(1).getStringCellValue();
@@ -102,8 +94,11 @@ public class ImportCollection {
                     String month = calendar.get(Calendar.MONTH) + 1+"";
                     // 获取当前日
                     String day = calendar.get(Calendar.DATE)+"";
+                    // 客户与上次拍单时间相差小于10天  自动设为无效
+                    if (DateUtils.daysBetween(dateStr,year + "-" + month + "-" +day)<10){
+                        execlModel.setExplainState("无效");
+                    }
                     execlModel.setInsertDate(year+month+day);
-                    System.out.println(execlModel.toString());
                     importService.insert(execlModel);
             }
             resultMode.setResult(true);
@@ -120,6 +115,7 @@ public class ImportCollection {
     @ResponseBody
     public void  downloadExcel(HttpServletResponse response) throws IOException {
         List<ExeclModel> execlModels = execlModelService.queryTodayAll().getTodayAll();
+        List<Map<String, String>> maps = execlModelService.queryTodayCallPhoneNum();
         ServletOutputStream out=null;
         try {
             out=response.getOutputStream();
@@ -129,11 +125,17 @@ public class ImportCollection {
             String month = calendar.get(Calendar.MONTH) + 1+"";
             // 获取当前日
             String day = calendar.get(Calendar.DATE)+"";
-            String fileName = execlModels.get(0).getName()+month+"-"+day;
-            System.out.println(fileName);
-            response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(fileName+".xlsx", "UTF-8"));
             XSSFWorkbook workbook = new XSSFWorkbook();
-            execl(workbook,execlModels);
+            if (CollectionUtils.isEmpty(execlModels)){
+                workbook.createSheet("Sheet1");
+                response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode("无今日数据.xlsx", "UTF-8"));
+                workbook.write(out);
+                return;
+            }
+            String fileName = execlModels.get(0).getName()+month+"-"+day;
+
+            response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(fileName+".xlsx", "UTF-8"));
+            execl(workbook,execlModels,maps);
             workbook.write(out);
         }catch (Exception e){
             e.printStackTrace();
@@ -151,7 +153,7 @@ public class ImportCollection {
 
     }
 
-    private void execl( XSSFWorkbook workbook, List<ExeclModel> execlModels){
+    private void execl( XSSFWorkbook workbook, List<ExeclModel> execlModels,List<Map<String, String>> maps){
         XSSFSheet sheet = workbook.createSheet("Sheet1");
         // 居中样式
         XSSFCellStyle centerStyle = workbook.createCellStyle();
@@ -233,6 +235,8 @@ public class ImportCollection {
             cell = row.createCell(2);
             if ("1".equals(execlModel.getSucceeState())){
                 cell.setCellStyle(bgColorStyle);
+            }else {
+                cell.setCellStyle(centerStyle);
             }
             cell.setCellValue(execlModel.getExplainState());
             cell = row.createCell(3);
@@ -343,5 +347,27 @@ public class ImportCollection {
         sheet.setColumnWidth(8,4200);
         sheet.setColumnWidth(9,4200);
 
+
+        row = sheet.getRow(5);
+        cell  = row.createCell(8);
+        cell.setCellValue("拨打号码");
+
+        int count =5;
+        for (Map<String,String> map:maps){
+            if (count !=5){
+                row = sheet.getRow(count);
+            }
+                cell  = row.createCell(9);
+                cell.setCellStyle(soildStyle);
+                cell.setCellValue(map.get("phone"));
+
+                cell  = row.createCell(10);
+                cell.setCellStyle(soildStyle);
+                cell.setCellValue(map.get("num"));
+            count+=1;
+
+        }
+
     }
+
 }

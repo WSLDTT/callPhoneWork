@@ -58,12 +58,18 @@
         AND explain_state ='同意';
     </select>
 
-    <select id="queryCallPhoneNum" resultType="java.util.Map">
-        select phone,CONCAT(count(*),'') num
+    <select id="queryTodayCallPhoneNum" resultType="java.util.Map">
+        select phone,count(*) num
         FROM tt_execl_model
         WHERE phone!='null'
         and phone!=''
+        and insert_date = #{insertDate,jdbcType=VARCHAR}
         GROUP BY phone
     </select>
 
+    <update id="updateExplainStateToWX">
+          update tt_execl_model
+          set explain_state ='无效'
+          where  id = #{id} AND  succee_state <![CDATA[<>]]> '1'
+    </update>
 </mapper>

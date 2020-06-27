@@ -23,6 +23,10 @@
         .over{
             background: #bcd4ec;
         }     
+
+         #tableId{
+            border:1px solid black;
+          }
      </style>
 </head>
 <body>
@@ -35,8 +39,22 @@
     <form action="">
         <input type="button" value="报表导出" onclick="download()"/>
     </form>
+
+    <button onclick="updateExplainState()">把超过30天拍单客户的置为无效</button>
+    <br/><br/>
+    <table id="tableId" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
+        <tr>
+            <th id="radio1">同意：<input type="radio" name="state"  onclick="queryExeclModelByState('同意')"></th>
+            <th id="radio2">不同意：<input type="radio" name="state"  onclick="queryExeclModelByState('不同意')"></th>
+            <th id="radio3">无效：<input type="radio" name="state"  onclick="queryExeclModelByState('无效')"></th>
+            <th id="radio4">未接：<input type="radio" name="state"  onclick="queryExeclModelByState('未接')"></th>
+            <th id="radio5">拍单成功：<input type="radio" name="state"  onclick="queryExeclModelByState('成功')"></th>
+        </tr>
+    </table>
+    <br/><br/>
+    今日工作汇总：
 </div>
-<div>
+<div style="width: 100%">
     <table id="planMakeTable" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
         <thead id="theadId" class="simier">
         <tr id="0tr">
@@ -71,6 +89,18 @@
 
 <script>
     $(function () {
+        for (var i=1;i<6;i++){
+            var id = '#radio'+i
+            //绑定每行鼠标移入移出事件
+            $(id).mouseover(function(){
+                $(this).addClass("over");
+            }).mouseout(function(){
+                $(this).removeClass("over")
+            });
+        }
+
+
+
         $.ajax({
             url: "/queryExeclModelCollection/queryTodayAll",
            // data: {name: 'jenny'},
@@ -95,10 +125,10 @@
                     html+="<tr id='"+count+"tr'>" +
                                 "<th>"+count+"</th>" +
                                 "<th>"+data[i].date+"</th>" +
-                                "<th style='max-width: 110px'>"+data[i].aliWWID+"</th>" +
+                                "<th style='max-width: 10%'>"+data[i].aliWWID+"</th>" +
                                 "<th id='"+data[i].id+"explainState'>"+selecthtml+"</th>" +
-                                "<th id='"+data[i].id+"phone'><input type='text' style='width: 100px' value='"+ data[i].phone +"'></th>" +
-                                "<th id='"+data[i].id+"phone2'><input type='text' style='width: 100px' value='"+ data[i].phone2 +"'></th>" +
+                                "<th id='"+data[i].id+"phone'><input type='text' style='width: 100%' value='"+ data[i].phone +"'></th>" +
+                                "<th id='"+data[i].id+"phone2'><input type='text' style='width: 100%' value='"+ data[i].phone2 +"'></th>" +
                                 "<th>"+data[i].callTime+"</th>" +
                                 "<th><button onclick='updateLink("+data[i].id+")'>更新</button></th>";
                                 if (data[i].succeeState=='1'){
@@ -257,9 +287,107 @@
 
     }
 
+    /**
+     * 下载execl
+     * */
     function download(){
         var url="/importCollection/downloadExcel";
         window.open(url);
+    }
+
+    /**
+     * 把距离上一次拍单时间超过30天的客户的状态置为无效
+     */
+    function updateExplainState() {
+        var url="/queryExeclModelCollection/updateExplainState";
+        $.ajax({
+            url: url,
+            // data: {name: 'jenny'},
+            type: "POST",
+            dataType: "json",
+            contentType:"application/json",
+            success: function (res) {
+                if(res.result==false){
+                    alert("拍单失败，失败原因："+res.errMsg);
+                }else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    function queryExeclModelByState(state) {
+        var url="/queryExeclModelCollection/queryExeclModelByState";
+        var dateJSON = JSON.stringify({
+            "state": state,
+        });
+        $.ajax({
+            url: url,
+            data: dateJSON,
+            type: "POST",
+            dataType: "json",
+            contentType:"application/json",
+            success: function (data) {
+                $("#theadId").html("<tr id=\"0tr\">\n" +
+                                        "<th>序号</th>\n" +
+                                        "<th>日期</th>\n" +
+                                        "<th >已拨打ID</th>\n" +
+                                        "<th>拨打备注</th>\n" +
+                                        "<th>拨打号码</th>\n" +
+                                        "<th>拨打号码</th>\n" +
+                                        "<th>通话分钟</th>\n" +
+                                        "<th>更新数据按钮</th>\n" +
+                                        "<th>拍单成功按钮</th>\n" +
+                                    "</tr>")
+                alert("111");
+                var html="";
+                var count="";
+                var selecthtml="";
+                for (var i = 0;i<data.length;i++){
+                    count =i+1;
+                    selecthtml="<select onselect='未接'>" +
+                        "<option value='' id='"+count+"'></option>" +
+                        "<option value='未接' id='"+count+"未接'>未接</option>" +
+                        "<option value='同意' id='"+count+"同意'>同意</option>" +
+                        "<option value='不同意' id='"+count+"不同意'>不同意</option>" +
+                        "<option value='无效' id='"+count+"无效'>无效</option>" +
+                        "</select>";
+
+                    html+="<tr id='"+count+"tr'>" +
+                        "<th>"+count+"</th>" +
+                        "<th>"+data[i].date+"</th>" +
+                        "<th style='max-width: 10%'>"+data[i].aliWWID+"</th>" +
+                        "<th id='"+data[i].id+"explainState'>"+selecthtml+"</th>" +
+                        "<th id='"+data[i].id+"phone'><input type='text' style='width: 100%' value='"+ data[i].phone +"'></th>" +
+                        "<th id='"+data[i].id+"phone2'><input type='text' style='width: 100%' value='"+ data[i].phone2 +"'></th>" +
+                        "<th>"+data[i].callTime+"</th>" +
+                        "<th><button onclick='updateLink("+data[i].id+")'>更新</button></th>";
+                    if (data[i].succeeState=='1'){
+                        html+="<th><button disabled='disabled'>拍单成功</button></th></tr>";
+                    }else if (data[i].succeeState=='0'){
+                        html+="<th><button onclick='successLink("+data[i].id+")'>设为拍单成功</button></th></tr>";
+                    }
+                }
+                $("#theadId").append(html);
+
+                var idSelect='';
+                var idTr='';
+                for (var i = 0;i<data.length;i++){
+                    idSelect = i+1+data[i].explainState;
+                    // 根据数据来默认选中下拉框的值
+                    $("#"+idSelect).attr("selected","selected");
+
+                    idTr = i+1+"tr";
+                    //绑定每行鼠标移入移出事件
+                    $("#"+idTr).mouseover(function(){
+                        $(this).addClass("over");
+                    }).mouseout(function(){
+                        $(this).removeClass("over")
+                    });
+
+                }
+            }
+        });
     }
 </script>
 </html>
