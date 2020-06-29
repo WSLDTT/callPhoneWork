@@ -19,6 +19,7 @@
     <script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="/webjars/bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
     <script src="/webjars/bootstrap-table/1.15.5/bootstrap-table.min.js"></script>
+    <script src="/webjars/bootstrap-select/1.7.3/js/bootstrap-select.js"></script>
     <style type="text/css">
         .over{
             background: #bcd4ec;
@@ -40,11 +41,11 @@
         <input type="button" value="报表导出" onclick="download()"/>
     </form>
 
-    <button onclick="updateExplainState()">把超过30天拍单客户的置为无效</button>
+    拍单时间超过<input type="text" style="width: 30px" id="updateExplainStateId" oninput = "value=value.replace(/[^\d]/g,'')"/>天客户置为无效<button onclick="updateExplainState()">确定</button>
     <br/><br/>
     <table id="tableId" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
         <tr>
-            <th id="radio1">同意：<input type="radio" name="state"  onclick="queryExeclModelByState('同意')"></th>
+            <th id="radio1">同意(不包括已拍单了的)：<input type="radio" name="state"  onclick="queryExeclModelByState('同意')"></th>
             <th id="radio2">不同意：<input type="radio" name="state"  onclick="queryExeclModelByState('不同意')"></th>
             <th id="radio3">无效：<input type="radio" name="state"  onclick="queryExeclModelByState('无效')"></th>
             <th id="radio4">未接：<input type="radio" name="state"  onclick="queryExeclModelByState('未接')"></th>
@@ -52,7 +53,24 @@
         </tr>
     </table>
     <br/><br/>
-    今日工作汇总：
+    <table id="censusWorkId" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
+        <tr>
+            <th>今日拍单成功：</th>
+            <th id="sucessNumId"></th>
+        </tr>
+    </table>
+    <br/><br/>
+    <div class="row form-group">
+        <div class="col-lg-2"></div>
+        <div class="form-group col-lg-8" >
+            <label class="input-group">
+                <span class="input-group-addon">已拨打ID：</span>
+                <select class="col-lg-6 form-control"  id="userName" name="name"
+                        data-live-search="true">
+                </select>
+            </label>
+        </div>
+    </div>
 </div>
 <div style="width: 100%">
     <table id="planMakeTable" class="table table-striped table-bordered" style="width:100%;font-size: 12px;display:inline">
@@ -89,6 +107,12 @@
 
 <script>
     $(function () {
+
+        //初始化select
+        $("#userName").selectpicker({
+            'selectedText': 'cat'
+        });
+
         for (var i=1;i<6;i++){
             var id = '#radio'+i
             //绑定每行鼠标移入移出事件
@@ -296,24 +320,37 @@
     }
 
     /**
-     * 把距离上一次拍单时间超过30天的客户的状态置为无效
+     * 把距离上一次拍单时间超过xxx天的客户的状态置为无效
      */
     function updateExplainState() {
-        var url="/queryExeclModelCollection/updateExplainState";
-        $.ajax({
-            url: url,
-            // data: {name: 'jenny'},
-            type: "POST",
-            dataType: "json",
-            contentType:"application/json",
-            success: function (res) {
-                if(res.result==false){
-                    alert("拍单失败，失败原因："+res.errMsg);
-                }else {
-                    window.location.reload();
+       var day =  $("#updateExplainStateId").val().trim();
+       if(day ==''){
+           alert("请输入天数");
+           return;
+       }
+        if(confirm("确定将拍单时间超过"+ day +"天客户置为无效?")){
+            //点击确定后操作
+            var dateJSON = JSON.stringify({
+                "wxDay": day,
+            });
+
+            var url="/queryExeclModelCollection/updateExplainState";
+            $.ajax({
+                url: url,
+                data: dateJSON,
+                type: "POST",
+                dataType: "json",
+                contentType:"application/json",
+                success: function (res) {
+                    if(res.result==false){
+                        alert("拍单失败，失败原因："+res.errMsg);
+                    }else {
+                        window.location.reload();
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
 
     function queryExeclModelByState(state) {

@@ -123,7 +123,8 @@ public class QueryExeclModelCollection {
 
     @RequestMapping("/updateExplainState")
     @ResponseBody
-    public ResultModel updateExplainState() {
+    public ResultModel updateExplainState(@RequestBody Map<String,Object> param) {
+        int wxDay = Integer.parseInt(param.get("wxDay").toString());
         PageQuery pageQuery = execlModelService.queryTodayAll();
         List<ExeclModel> todayAll = pageQuery.getTodayAll();
         Calendar calendar = Calendar.getInstance();
@@ -141,7 +142,7 @@ public class QueryExeclModelCollection {
                 if (date.contains("/")){
                     date =date.replaceAll("/","-");
                 }
-                if (DateUtils.daysBetween(date,today)>30){
+                if (DateUtils.daysBetween(date,today)>wxDay){
                     Integer integer = execlModelService.updateExplainStateToWX(execlModel.getId());
                 }
             }
