@@ -40,6 +40,7 @@ public class QueryExeclModelCollection {
 
     private List<ExeclModel> unTyMap = new ArrayList<ExeclModel>();
     private List<ExeclModel> wjMap = new ArrayList<ExeclModel>();
+    private List<ExeclModel> noCall = new ArrayList<ExeclModel>();
 
 
     @RequestMapping("/queryTodayAll")
@@ -89,6 +90,7 @@ public class QueryExeclModelCollection {
             wXMap = null;
             tyMap = null;
             unTyMap = null;
+            noCall=null;
             return  resultModel;
         }
         resultModel.setResult(false);
@@ -112,6 +114,7 @@ public class QueryExeclModelCollection {
             wXMap = null;
             tyMap = null;
             unTyMap = null;
+            noCall=null;
             resultModel.setResult(true);
             return  resultModel;
         }else {
@@ -155,6 +158,7 @@ public class QueryExeclModelCollection {
         wXMap = null;
         tyMap = null;
         unTyMap = null;
+        noCall=null;
         return resultModel;
     }
 
@@ -177,6 +181,8 @@ public class QueryExeclModelCollection {
             return unTyMap;
         }else if ("未接".equals(state)){
             return wjMap;
+        }else if ("待处理".equals(state)){
+            return noCall;
         }
         return null;
     }
@@ -187,7 +193,7 @@ public class QueryExeclModelCollection {
             tyMap = new ArrayList<ExeclModel>();
             unTyMap = new ArrayList<ExeclModel>();
             wjMap = new ArrayList<ExeclModel>();
-
+            noCall = new ArrayList<ExeclModel>();
         for (ExeclModel execlModel:todayList){
             String explainState = execlModel.getExplainState();
             if ("无效".equals(explainState)){
@@ -200,6 +206,8 @@ public class QueryExeclModelCollection {
                 wjMap.add(execlModel);
             }else if ("1".equals(execlModel.getSucceeState())){
                 sucessMap.add(execlModel);
+            }else {
+                noCall.add(execlModel);
             }
 
         }

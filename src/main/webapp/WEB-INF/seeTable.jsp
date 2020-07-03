@@ -50,6 +50,7 @@
             <th id="radio3">无效：<input type="radio" name="state"  onclick="queryExeclModelByState('无效')"></th>
             <th id="radio4">未接：<input type="radio" name="state"  onclick="queryExeclModelByState('未接')"></th>
             <th id="radio5">拍单成功：<input type="radio" name="state"  onclick="queryExeclModelByState('成功')"></th>
+            <th id="radio6">待处理：<input type="radio" name="state"  onclick="queryExeclModelByState('待处理')"></th>
         </tr>
     </table>
     <br/><br/>
@@ -179,6 +180,8 @@
                 var calledCount = 0;
                 //统计同意数量
                 var agreeCount = 0;
+                //统计已拍单数量
+                var sucessCount = 0;
                 for (var i = 0;i<data.length;i++){
                     idSelect = i+1+data[i].explainState;
                     idTr = i+1+"tr";
@@ -196,8 +199,12 @@
                         unagreeCount+=1;
                     }else if (data[i].explainState == '无效'){
                         invalidCount+=1;
-                    }else if (data[i].explainState == '同意'){
+                    }else if (data[i].explainState == '同意' ){
                         agreeCount+=1;
+                    }
+
+                   if (data[i].succeeState =='1'){
+                        sucessCount+=1;
                     }
                     //绑定每行鼠标移入移出事件
                     $("#"+idTr).mouseover(function(){
@@ -206,6 +213,7 @@
                         $(this).removeClass("over")
                     });
                 }
+                $("#sucessNumId").html("<font style='color: brown'>"+sucessCount+"</font>");
                 $("#theadId2").append(html2);
                 //已拨打数 = 未接 +不同意+同意
                 calledCount =  missCallCount + unagreeCount + agreeCount;
